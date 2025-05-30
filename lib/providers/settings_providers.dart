@@ -41,6 +41,7 @@ class ThemeStateNotifier extends StateNotifier<SettingsModel> {
     bool? isSSLDisabled,
     LLMProvider? defaultLLMProvider,
     String? defaultLLMProviderCredentials,
+    bool? isDashBotEnabled,
   }) async {
     state = state.copyWith(
       isDark: isDark,
@@ -57,6 +58,7 @@ class ThemeStateNotifier extends StateNotifier<SettingsModel> {
       isSSLDisabled: isSSLDisabled,
       defaultLLMProvider: defaultLLMProvider,
       defaultLLMProviderCredentials: defaultLLMProviderCredentials,
+      isDashBotEnabled: isDashBotEnabled,
     );
     await setSettingsToSharedPrefs(state);
   }
