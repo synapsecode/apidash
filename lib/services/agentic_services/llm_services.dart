@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:apidash/models/llm_models/google/gemini_20_flash.dart';
+import 'package:apidash/models/llm_models/llm_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:ollama_dart/ollama_dart.dart';
 
@@ -36,34 +38,36 @@ class APIDashCustomLLMService {
     String input,
     String apiKey,
   ) async {
-    final inpS = input == '' ? '' : '\nProvided Inputs:$input';
-    String combinedInput = "$systemPrompt$inpS";
-
-    // throw Exception(); //TO SIMULATE EXCEPTION
-
-    final url = Uri.parse(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'contents': [
-          {
-            "parts": [
-              {"text": combinedInput}
-            ]
-          }
-        ]
-      }),
+    return await Gemini20FlashModel().call(
+      systemPrompt: systemPrompt,
+      userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
+      credential: apiKey,
     );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return data['candidates']?[0]?['content']?['parts']?[0]?['text'];
-    } else {
-      throw Exception(
-        'GEMINI_EXCEPTION: ${response.statusCode}\n${response.body}',
-      );
-    }
+    // final inpS = input == '' ? '' : '\nProvided Inputs:$input';
+    // String combinedInput = "$systemPrompt$inpS";
+    // final url = Uri.parse(
+    //     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey');
+    // final response = await http.post(
+    //   url,
+    //   headers: {'Content-Type': 'application/json'},
+    //   body: jsonEncode({
+    //     'contents': [
+    //       {
+    //         "parts": [
+    //           {"text": combinedInput}
+    //         ]
+    //       }
+    //     ]
+    //   }),
+    // );
+    // if (response.statusCode == 200) {
+    //   final data = jsonDecode(response.body);
+    //   return data['candidates']?[0]?['content']?['parts']?[0]?['text'];
+    // } else {
+    //   throw Exception(
+    //     'GEMINI_EXCEPTION: ${response.statusCode}\n${response.body}',
+    //   );
+    // }
   }
 
   static Future<String?> claude(
