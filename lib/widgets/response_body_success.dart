@@ -52,6 +52,11 @@ class _ResponseBodySuccessState extends ConsumerState<ResponseBodySuccess> {
       borderRadius: kBorderRadius8,
     );
 
+    final aT = ref
+        .watch(collectionStateNotifierProvider
+            .select((value) => value![ref.read(selectedIdStateProvider)!]))!
+        .apiType;
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         var showLabel = showButtonLabelsInBodySuccess(
@@ -62,95 +67,96 @@ class _ResponseBodySuccessState extends ConsumerState<ResponseBodySuccess> {
           padding: kP10,
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FilledButton.tonalIcon(
-                    style: FilledButton.styleFrom(
-                      padding: kPh12,
-                      minimumSize: const Size(44, 44),
-                    ),
-                    onPressed: () async {
-                      final requestModel = ref.watch(
-                          selectedRequestModelProvider
-                              .select((value) => value?.httpRequestModel));
-                      final responseModel = ref.watch(
-                          selectedRequestModelProvider
-                              .select((value) => value?.httpResponseModel));
+              if (aT == APIType.rest)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(
+                        padding: kPh12,
+                        minimumSize: const Size(44, 44),
+                      ),
+                      onPressed: () async {
+                        final requestModel = ref.watch(
+                            selectedRequestModelProvider
+                                .select((value) => value?.httpRequestModel));
+                        final responseModel = ref.watch(
+                            selectedRequestModelProvider
+                                .select((value) => value?.httpResponseModel));
 
-                      if (requestModel == null) return;
-                      if (responseModel == null) {
-                        print("AA");
-                        return;
-                      }
+                        if (requestModel == null) return;
+                        if (responseModel == null) {
+                          print("AA");
+                          return;
+                        }
 
-                      String? bodyTXT;
-                      Map? bodyJSON;
-                      List<Map>? bodyFormData;
+                        String? bodyTXT;
+                        Map? bodyJSON;
+                        List<Map>? bodyFormData;
 
-                      if (requestModel.bodyContentType ==
-                          ContentType.formdata) {
-                        bodyFormData = requestModel.formDataMapList;
-                      } else if (requestModel.bodyContentType ==
-                          ContentType.json) {
-                        bodyJSON = jsonDecode(requestModel.body.toString());
-                      } else {
-                        bodyTXT = requestModel.body!;
-                      }
+                        if (requestModel.bodyContentType ==
+                            ContentType.formdata) {
+                          bodyFormData = requestModel.formDataMapList;
+                        } else if (requestModel.bodyContentType ==
+                            ContentType.json) {
+                          bodyJSON = jsonDecode(requestModel.body.toString());
+                        } else {
+                          bodyTXT = requestModel.body!;
+                        }
 
-                      final reqDesModel = APIDashRequestDescription(
-                        endpoint: requestModel.url,
-                        method: requestModel.method.name.toUpperCase(),
-                        responseType: responseModel.contentType.toString(),
-                        headers: requestModel.headersMap,
-                        response: responseModel.body,
-                        formData: bodyFormData,
-                        bodyTXT: bodyTXT,
-                        bodyJSON: bodyJSON,
-                      );
+                        final reqDesModel = APIDashRequestDescription(
+                          endpoint: requestModel.url,
+                          method: requestModel.method.name.toUpperCase(),
+                          responseType: responseModel.contentType.toString(),
+                          headers: requestModel.headersMap,
+                          response: responseModel.body,
+                          formData: bodyFormData,
+                          bodyTXT: bodyTXT,
+                          bodyJSON: bodyJSON,
+                        );
 
-                      showCustomDialog(
-                        context,
-                        GenerateToolDialog(
-                          requestDesc: reqDesModel,
+                        showCustomDialog(
+                          context,
+                          GenerateToolDialog(
+                            requestDesc: reqDesModel,
+                          ),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.token_outlined,
+                      ),
+                      label: const SizedBox(
+                        child: Text(
+                          "Generate Tool",
                         ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.token_outlined,
-                    ),
-                    label: const SizedBox(
-                      child: Text(
-                        "Generate Tool",
                       ),
                     ),
-                  ),
-                  kHSpacer10,
-                  FilledButton.tonalIcon(
-                    style: FilledButton.styleFrom(
-                      padding: kPh12,
-                      minimumSize: const Size(44, 44),
-                    ),
-                    onPressed: () {
-                      final model = ref.watch(selectedRequestModelProvider
-                          .select((value) => value?.httpResponseModel));
-                      showCustomDialog(
-                        context,
-                        GenerateUIDialog(content: model?.formattedBody ?? ""),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.generating_tokens,
-                    ),
-                    label: const SizedBox(
-                      child: Text(
-                        kLabelGenerateUI,
+                    kHSpacer10,
+                    FilledButton.tonalIcon(
+                      style: FilledButton.styleFrom(
+                        padding: kPh12,
+                        minimumSize: const Size(44, 44),
+                      ),
+                      onPressed: () {
+                        final model = ref.watch(selectedRequestModelProvider
+                            .select((value) => value?.httpResponseModel));
+                        showCustomDialog(
+                          context,
+                          GenerateUIDialog(content: model?.formattedBody ?? ""),
+                        );
+                      },
+                      icon: Icon(
+                        Icons.generating_tokens,
+                      ),
+                      label: const SizedBox(
+                        child: Text(
+                          kLabelGenerateUI,
+                        ),
                       ),
                     ),
-                  ),
-                  kHSpacer10,
-                ],
-              ),
+                    kHSpacer10,
+                  ],
+                ),
               kVSpacer10,
               Row(
                 children: [
