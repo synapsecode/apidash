@@ -7,7 +7,7 @@ import 'package:apidash/models/llm_models/llm_model.dart';
 import 'package:apidash/models/llm_models/openai/azure_openai.dart';
 import 'package:apidash/services/agentic_services/agent_blueprint.dart';
 
-typedef LLMAccessDetail = (LLMProvider provider, String credential);
+typedef LLMAccessDetail = (String provider, String credential);
 
 class APIDashAIService {
   static Future<String?> _call_ollama({
@@ -28,23 +28,14 @@ class APIDashAIService {
   }
 
   static Future<String?> _call_provider({
-    required LLMProvider provider,
+    required String provider,
     required String apiKey,
     required String systemPrompt,
     required String input,
   }) async {
     switch (provider) {
-      case LLMProvider.gemini:
-        return await Gemini20FlashModel().call(
-          systemPrompt: systemPrompt,
-          userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
-          credential: apiKey,
-        );
-      case LLMProvider.chatgpt:
-        return null;
-      case LLMProvider.claude:
-        return null;
-      case LLMProvider.azureOpenAI:
+      // Handling Special Case for AzureOpenAI
+      case 'azure_openai':
         final credParts = apiKey.split('|');
         final endpoint = credParts[0];
         final modelname = credParts[1];
@@ -62,8 +53,16 @@ class APIDashAIService {
           credential: apiK,
         );
       default:
-        print('PROVIDER_UNIMPLEMENTED');
-        return null;
+        final m = getLLMModelFromID(provider);
+        if (m == null) {
+          print('PROVIDER_UNIMPLEMENTED');
+          return null;
+        }
+        return await m.call(
+          systemPrompt: systemPrompt,
+          userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
+          credential: apiKey,
+        );
     }
   }
 
@@ -83,7 +82,7 @@ class APIDashAIService {
     }
 
     //Implement any Rate limiting logic as needed
-    if (accessDetail.$1 == LLMProvider.ollama) {
+    if (accessDetail.$1 == 'llama3_local') {
       //Use local ollama implementation
       return await _call_ollama(systemPrompt: sP, input: query ?? '');
     } else {

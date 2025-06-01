@@ -8,7 +8,7 @@ import '../consts.dart';
 final codegenLanguageStateProvider = StateProvider<CodegenLanguage>((ref) =>
     ref.watch(settingsProvider.select((value) => value.defaultCodeGenLang)));
 
-final llmProviderStateProvider = StateProvider<LLMProvider>((ref) =>
+final llmProviderStateProvider = StateProvider<String>((ref) =>
     ref.watch(settingsProvider.select((value) => value.defaultLLMProvider)));
 
 final llmProviderCredentialsProvider = StateProvider<String>((ref) => ref.watch(
@@ -39,7 +39,7 @@ class ThemeStateNotifier extends StateNotifier<SettingsModel> {
     HistoryRetentionPeriod? historyRetentionPeriod,
     String? workspaceFolderPath,
     bool? isSSLDisabled,
-    LLMProvider? defaultLLMProvider,
+    String? defaultLLMProvider,
     String? defaultLLMProviderCredentials,
     bool? isDashBotEnabled,
   }) async {

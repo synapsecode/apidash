@@ -18,7 +18,7 @@ class SettingsModel {
     this.workspaceFolderPath,
     this.isSSLDisabled = false,
     this.isDashBotEnabled = true,
-    this.defaultLLMProvider = LLMProvider.ollama,
+    this.defaultLLMProvider = 'llama3_local',
     this.defaultLLMProviderCredentials = '',
   });
 
@@ -34,7 +34,7 @@ class SettingsModel {
   final HistoryRetentionPeriod historyRetentionPeriod;
   final String? workspaceFolderPath;
   final bool isSSLDisabled;
-  final LLMProvider defaultLLMProvider;
+  final String defaultLLMProvider;
   final String defaultLLMProviderCredentials;
   final bool isDashBotEnabled;
 
@@ -51,7 +51,7 @@ class SettingsModel {
     HistoryRetentionPeriod? historyRetentionPeriod,
     String? workspaceFolderPath,
     bool? isSSLDisabled,
-    LLMProvider? defaultLLMProvider,
+    String? defaultLLMProvider,
     String? defaultLLMProviderCredentials,
     bool? isDashBotEnabled,
   }) {
@@ -136,15 +136,7 @@ class SettingsModel {
       }
     }
 
-    final defaultLLMProviderStr = data["defaultLLMProvider"] as String?;
-    LLMProvider? defaultLLMProvider;
-    if (defaultLLMProviderStr != null) {
-      try {
-        defaultLLMProvider = LLMProvider.values.byName(defaultLLMProviderStr);
-      } catch (e) {
-        // pass
-      }
-    }
+    final defaultLLMProvider = data["defaultLLMProvider"] as String?;
 
     final defaultLLMProviderCredentialsStr =
         data['defaultLLMProviderCredentials'] as String?;
@@ -212,7 +204,7 @@ class SettingsModel {
       "historyRetentionPeriod": historyRetentionPeriod.name,
       "workspaceFolderPath": workspaceFolderPath,
       "isSSLDisabled": isSSLDisabled,
-      "defaultLLMProvider": defaultLLMProvider.name,
+      "defaultLLMProvider": defaultLLMProvider,
       "defaultLLMProviderCredentials": defaultLLMProviderCredentials,
       "isDashBotEnabled": isDashBotEnabled,
     };
