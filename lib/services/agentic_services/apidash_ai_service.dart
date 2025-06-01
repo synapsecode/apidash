@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:apidash/consts.dart';
+import 'package:apidash/models/llm_models/all_models.dart';
+import 'package:apidash/models/llm_models/google/gemini_20_flash.dart';
+import 'package:apidash/models/llm_models/llm_model.dart';
+import 'package:apidash/models/llm_models/openai/azure_openai.dart';
 import 'package:apidash/services/agentic_services/agent_blueprint.dart';
-import 'package:apidash/services/agentic_services/llm_services.dart';
 
 typedef LLMAccessDetail = (LLMProvider provider, String credential);
 
@@ -9,7 +14,17 @@ class APIDashAIService {
     required String systemPrompt,
     required String input,
   }) async {
-    return await APIDashOllamaService.ollama(systemPrompt, input);
+    final result =
+        await Process.run('curl', ['http://localhost:11434/api/tags']);
+    if (result.exitCode != 0) {
+      print('OLLAMA_NOT_ACTIVE');
+      return null;
+    }
+    return await LLama3LocalModel().call(
+      systemPrompt: systemPrompt,
+      userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
+      credential: 'NONE',
+    );
   }
 
   static Future<String?> _call_provider({
@@ -20,19 +35,31 @@ class APIDashAIService {
   }) async {
     switch (provider) {
       case LLMProvider.gemini:
-        return await APIDashCustomLLMService.gemini(
-            systemPrompt, input, apiKey);
+        return await Gemini20FlashModel().call(
+          systemPrompt: systemPrompt,
+          userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
+          credential: apiKey,
+        );
       case LLMProvider.chatgpt:
-        return await APIDashCustomLLMService.chatgpt(
-            systemPrompt, input, apiKey);
+        return null;
       case LLMProvider.claude:
-        return await APIDashCustomLLMService.claude(
-            systemPrompt, input, apiKey);
+        return null;
       case LLMProvider.azureOpenAI:
-        return await APIDashCustomLLMService.openai_azure(
-          systemPrompt,
-          input,
-          apiKey,
+        final credParts = apiKey.split('|');
+        final endpoint = credParts[0];
+        final modelname = credParts[1];
+        final apiversion = credParts[2];
+        final apiK = credParts[3];
+        final m = AzureOpenAIModel();
+        m.loadConfigurations({
+          'azure_endpoint': endpoint,
+          'azure_deployment_name': modelname,
+          'azure_api_version': apiversion
+        });
+        return await m.call(
+          systemPrompt: systemPrompt,
+          userPrompt: input == '' ? '' : '\nProvided Inputs:$input',
+          credential: apiK,
         );
       default:
         print('PROVIDER_UNIMPLEMENTED');
