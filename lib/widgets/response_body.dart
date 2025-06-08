@@ -18,14 +18,17 @@ class ResponseBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final responseModel = selectedRequestModel?.httpResponseModel;
-    if (responseModel == null) {
+    HttpResponseModel? httpResponseModel;
+    httpResponseModel = selectedRequestModel?.httpResponseModel;
+
+    if (httpResponseModel == null) {
       return const ErrorMessage(
           message: '$kNullResponseModelError $kUnexpectedRaiseIssue');
     }
 
-    var body = responseModel.body;
-    var formattedBody = responseModel.formattedBody;
+    var body = httpResponseModel.body;
+    var formattedBody = httpResponseModel.formattedBody;
+
     if (body == null) {
       return const ErrorMessage(
           message: '$kMsgNullBody $kUnexpectedRaiseIssue');
@@ -39,7 +42,8 @@ class ResponseBody extends StatelessWidget {
     }
 
     final mediaType =
-        responseModel.mediaType ?? MediaType(kTypeText, kSubTypePlain);
+        httpResponseModel.mediaType ?? MediaType(kTypeText, kSubTypePlain);
+
     // Fix #415: Treat null Content-type as plain text instead of Error message
     // if (mediaType == null) {
     //   return ErrorMessage(
@@ -56,17 +60,16 @@ class ResponseBody extends StatelessWidget {
       options.remove(ResponseBodyView.code);
     }
 
-    // print('reM -> ${responseModel.sseOutput}');
-
-    if (responseModel.sseOutput?.isNotEmpty ?? false) {
+    //SSE-OUTPUT
+    if (httpResponseModel.sseOutput?.isNotEmpty ?? false) {
       // final modifiedBody = responseModel.sseOutput!.join('\n\n');
       return ResponseBodySuccess(
         key: Key("${selectedRequestModel!.id}-response"),
         mediaType: MediaType('text', 'event-stream'),
         options: [ResponseBodyView.sse, ResponseBodyView.raw],
-        bytes: utf8.encode((responseModel.sseOutput!).toString()),
-        body: jsonEncode(responseModel.sseOutput!),
-        formattedBody: responseModel.sseOutput!.join('\n'),
+        bytes: utf8.encode((httpResponseModel.sseOutput!).toString()),
+        body: jsonEncode(httpResponseModel.sseOutput!),
+        formattedBody: httpResponseModel.sseOutput!.join('\n'),
       );
     }
 
@@ -74,7 +77,7 @@ class ResponseBody extends StatelessWidget {
       key: Key("${selectedRequestModel!.id}-response"),
       mediaType: mediaType,
       options: options,
-      bytes: responseModel.bodyBytes!,
+      bytes: httpResponseModel.bodyBytes!,
       body: body,
       formattedBody: formattedBody,
       highlightLanguage: highlightLanguage,

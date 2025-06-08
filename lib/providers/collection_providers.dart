@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:apidash_core/apidash_core.dart';
 import 'package:flutter/material.dart';
@@ -229,7 +230,6 @@ class CollectionStateNotifier
     String? preRequestScript,
     String? postRequestScript,
     AIRequestModel? aiRequestModel,
-    AIResponseModel? aiResponseModel,
   }) {
     final rId = id ?? ref.read(selectedIdStateProvider);
     if (rId == null) {
@@ -264,7 +264,6 @@ class CollectionStateNotifier
       preRequestScript: preRequestScript ?? currentModel.preRequestScript,
       postRequestScript: postRequestScript ?? currentModel.postRequestScript,
       aiRequestModel: aiRequestModel ?? currentModel.aiRequestModel,
-      aiResponseModel: aiResponseModel ?? currentModel.aiResponseModel,
     );
 
     var map = {...state!};
@@ -304,9 +303,30 @@ class CollectionStateNotifier
     }
 
     APIType apiType = requestModel!.apiType;
-    HttpRequestModel substitutedHttpRequestModel =
-        getSubstitutedHttpRequestModel(requestModel.httpRequestModel!);
-    bool noSSL = ref.read(settingsProvider).isSSLDisabled;
+
+    late HttpRequestModel substitutedHttpRequestModel;
+    AIRequestModel? aiRequestModel;
+
+    if (apiType == APIType.ai) {
+      aiRequestModel = requestModel.aiRequestModel!;
+      final genAIRequest = aiRequestModel.createRequest();
+      substitutedHttpRequestModel = getSubstitutedHttpRequestModel(
+        HttpRequestModel(
+          method: HTTPVerb.post,
+          headers: [
+            ...genAIRequest.headers.entries.map(
+              (x) => NameValueModel.fromJson({x.key: x.value}),
+            ),
+          ],
+          url: genAIRequest.endpoint,
+          bodyContentType: ContentType.json,
+          body: jsonEncode(genAIRequest.body),
+        ),
+      );
+    } else {
+      substitutedHttpRequestModel =
+          getSubstitutedHttpRequestModel(requestModel.httpRequestModel!);
+    }
 
     // Set model to working and streaming
     state = {
@@ -316,6 +336,8 @@ class CollectionStateNotifier
         sendingTime: DateTime.now(),
       ),
     };
+
+    bool noSSL = ref.read(settingsProvider).isSSLDisabled;
 
     final stream = await streamHttpRequest(
       requestId,
@@ -333,6 +355,8 @@ class CollectionStateNotifier
 
     StreamSubscription? sub;
 
+    bool streaming = true; //DEFAULT to streaming
+
     sub = stream.listen((d) async {
       if (d == null) return;
 
@@ -342,6 +366,7 @@ class CollectionStateNotifier
       final errorMessage = d.$4;
 
       if (isTextStream == false) {
+        streaming = false;
         if (!completer.isCompleted) {
           completer.complete((response, duration, errorMessage));
         }
@@ -409,6 +434,22 @@ class CollectionStateNotifier
           .copyWith(
             sseOutput: (isTextStream == true) ? [response.body] : [],
           );
+
+      if (!streaming) {
+        //AI-FORMATTING for Non Streaming Varaint
+        if (apiType == APIType.ai) {
+          final mT = respModel?.mediaType;
+          final body = (mT?.subtype == kSubTypeJson)
+              ? utf8.decode(response.bodyBytes)
+              : response.body;
+
+          final fb = response.statusCode == 200
+              ? aiRequestModel?.model.provider.modelController
+                  .outputFormatter(jsonDecode(body))
+              : formatBody(body, mT);
+          respModel = respModel?.copyWith(formattedBody: fb);
+        }
+      }
 
       newRequestModel = newRequestModel.copyWith(
         responseStatus: statusCode,
