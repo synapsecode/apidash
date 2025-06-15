@@ -1,5 +1,5 @@
 import 'dart:math';
-import '../available_llms.dart';
+import '../llm_manager.dart';
 import 'anthropic.dart';
 import 'azureopenai.dart';
 import 'common.dart';
@@ -19,7 +19,7 @@ enum LLMProvider {
   final String displayName;
 
   List<LLMModel> get models {
-    final avl = AVAILABLE_LLMS[this.name.toLowerCase()];
+    final avl = LLMManager.models[this.name.toLowerCase()];
     if (avl == null) return [];
     List<LLMModel> models = [];
     for (final x in avl) {
@@ -64,7 +64,7 @@ enum LLMProvider {
   LLMModel getLLMByIdentifier(String identifier) {
     final m = this.models.where((e) => e.identifier == identifier).firstOrNull;
     if (m == null) {
-      throw Exception('MODEL DOES NOT EXIST');
+      throw Exception('MODEL DOES NOT EXIST $identifier');
     }
     return m;
   }

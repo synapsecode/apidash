@@ -45,24 +45,33 @@ class DefaultLLMSelectorDialog extends StatefulWidget {
 class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
   late LLMProvider selectedLLMProvider;
   late LLMSaveObject llmSaveObject;
+  bool initialized = false;
+
+  initialize() async {
+    final iP = LLMProvider.gemini.modelController.inputPayload;
+    llmSaveObject = widget.defaultLLM ??
+        LLMSaveObject(
+          endpoint: iP.endpoint,
+          credential: '',
+          configMap: iP.configMap,
+          selectedLLM:
+              LLMProvider.gemini.getLLMByIdentifier('gemini-2.0-flash'),
+          provider: LLMProvider.ollama,
+        );
+    selectedLLMProvider = llmSaveObject.provider;
+    initialized = true;
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    final oC = OllamaModelController().inputPayload;
-    llmSaveObject = widget.defaultLLM ??
-        LLMSaveObject(
-          endpoint: oC.endpoint,
-          credential: '',
-          configMap: oC.configMap,
-          selectedLLM: LLMProvider.ollama.getLLMByIdentifier('llama3'),
-          provider: LLMProvider.ollama,
-        );
-    selectedLLMProvider = llmSaveObject.provider;
+    initialize();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!initialized) return SizedBox();
     return Container(
       padding: EdgeInsets.all(20),
       width: MediaQuery.of(context).size.width * 0.8,
@@ -75,31 +84,39 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...LLMProvider.values.map(
-                    (x) => ListTile(
-                      title: Text(x.displayName),
-                      trailing: llmSaveObject.provider != x
-                          ? null
-                          : CircleAvatar(
-                              radius: 5,
-                              backgroundColor: Colors.green,
-                            ),
-                      onTap: () {
-                        selectedLLMProvider = x;
-                        final models = x.models;
-                        final mC = x.modelController;
-                        final p = mC.inputPayload;
-                        llmSaveObject = LLMSaveObject(
-                          endpoint: p.endpoint,
-                          credential: '',
-                          configMap: p.configMap,
-                          selectedLLM: models.first,
-                          provider: x,
-                        );
-                        setState(() {});
-                      },
-                    ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await LLMManager.fetchAvailableLLMs();
+                      setState(() {});
+                    },
+                    child: Text('Fetch Models'),
                   ),
+                  SizedBox(height: 20),
+                  ...LLMProvider.values.where(((e) => e.models.isNotEmpty)).map(
+                        (x) => ListTile(
+                          title: Text(x.displayName),
+                          trailing: llmSaveObject.provider != x
+                              ? null
+                              : CircleAvatar(
+                                  radius: 5,
+                                  backgroundColor: Colors.green,
+                                ),
+                          onTap: () {
+                            selectedLLMProvider = x;
+                            final models = x.models;
+                            final mC = x.modelController;
+                            final p = mC.inputPayload;
+                            llmSaveObject = LLMSaveObject(
+                              endpoint: p.endpoint,
+                              credential: '',
+                              configMap: p.configMap,
+                              selectedLLM: models.first,
+                              provider: x,
+                            );
+                            setState(() {});
+                          },
+                        ),
+                      ),
                 ],
               ),
             ),

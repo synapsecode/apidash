@@ -48,7 +48,7 @@ class CodePane extends ConsumerWidget {
     );
 
     final code = codegen.getCode(
-        codegenLanguage, substitutedRequestModel!, defaultUriScheme);
+        codegenLanguage, substitutedRequestModel, defaultUriScheme);
 
     // TODO: Add GraphQL Codegen
     if (substitutedRequestModel.apiType == APIType.graphql) {

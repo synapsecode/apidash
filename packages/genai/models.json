@@ -89,20 +89,6 @@
             "Gemini 2.5 Flash Preview 0520"
         ]
     ],
-    "ollama": [
-        [
-            "llama3",
-            "Llama 3"
-        ],
-        [
-            "gemma3",
-            "Gemma 3"
-        ],
-        [
-            "mistral",
-            "Mistral"
-        ]
-    ],
     "azureopenai": [
         [
             "custom",

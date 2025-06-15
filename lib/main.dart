@@ -1,6 +1,7 @@
 import 'package:apidash_design_system/apidash_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genai/llm_manager.dart';
 import 'models/models.dart';
 import 'providers/providers.dart';
 import 'services/services.dart';
@@ -11,6 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   var settingsModel = await getSettingsFromSharedPrefs();
   var onboardingStatus = await getOnboardingStatusFromSharedPrefs();
+  await LLMManager.loadAvailableLLMs();
   final initStatus = await initApp(
     kIsDesktop,
     settingsModel: settingsModel,
