@@ -1,13 +1,14 @@
-import '../../llm_config.dart';
-import '../../llm_input_payload.dart';
-import '../../llm_request.dart';
-import '../../providers/common.dart';
+import '../llm_config.dart';
+import '../llm_input_payload.dart';
+import '../llm_request.dart';
+import 'common.dart';
 
-class AnthropicModelController extends ModelController {
-  static final instance = AnthropicModelController();
+class OpenAIModelController extends ModelController {
+  static final instance = OpenAIModelController();
+
   @override
   LLMInputPayload get inputPayload => LLMInputPayload(
-    endpoint: 'https://api.anthropic.com/v1/messages',
+    endpoint: 'https://api.openai.com/v1/chat/completions',
     credential: '',
     systemPrompt: '',
     userPrompt: '',
@@ -26,17 +27,18 @@ class AnthropicModelController extends ModelController {
   }) {
     return LLMRequestDetails(
       endpoint: inputPayload.endpoint,
-      headers: {
-        'anthropic-version': '2023-06-01',
-        'Authorization': 'Bearer ${inputPayload.credential}',
-      },
+      headers: {'Authorization': "Bearer ${inputPayload.credential}"},
       method: 'POST',
       body: {
-        "model": model.identifier,
+        'model': model.identifier,
         if (stream) ...{'stream': true},
         "messages": [
           {"role": "system", "content": inputPayload.systemPrompt},
-          {"role": "user", "content": inputPayload.userPrompt},
+          if (inputPayload.userPrompt.isNotEmpty) ...{
+            {"role": "user", "content": inputPayload.userPrompt},
+          } else ...{
+            {"role": "user", "content": "Generate"},
+          },
         ],
         "temperature":
             inputPayload
@@ -64,11 +66,11 @@ class AnthropicModelController extends ModelController {
 
   @override
   String? outputFormatter(Map x) {
-    return x['content']?[0]['text'];
+    return x["choices"]?[0]["message"]?["content"]?.trim();
   }
 
   @override
   String? streamOutputFormatter(Map x) {
-    return x['text'];
+    return x["choices"]?[0]["delta"]?["content"];
   }
 }

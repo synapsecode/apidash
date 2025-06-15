@@ -1,14 +1,13 @@
-import '../../llm_config.dart';
-import '../../llm_input_payload.dart';
-import '../../llm_request.dart';
-import '../../providers/common.dart';
+import '../llm_config.dart';
+import '../llm_input_payload.dart';
+import '../llm_request.dart';
+import 'common.dart';
 
-class OpenAIModelController extends ModelController {
-  static final instance = OpenAIModelController();
-
+class AzureOpenAIModelController extends ModelController {
+  static final instance = AzureOpenAIModelController();
   @override
   LLMInputPayload get inputPayload => LLMInputPayload(
-    endpoint: 'https://api.openai.com/v1/chat/completions',
+    endpoint: '', //TO BE FILLED BY USER
     credential: '',
     systemPrompt: '',
     userPrompt: '',
@@ -25,12 +24,14 @@ class OpenAIModelController extends ModelController {
     LLMInputPayload inputPayload, {
     bool stream = false,
   }) {
+    if (inputPayload.endpoint.isEmpty) {
+      throw Exception('MODEL ENDPOINT IS EMPTY');
+    }
     return LLMRequestDetails(
       endpoint: inputPayload.endpoint,
-      headers: {'Authorization': "Bearer ${inputPayload.credential}"},
+      headers: {'api-key': inputPayload.credential},
       method: 'POST',
       body: {
-        'model': model.identifier,
         if (stream) ...{'stream': true},
         "messages": [
           {"role": "system", "content": inputPayload.systemPrompt},

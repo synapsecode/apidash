@@ -76,7 +76,7 @@ class AIResponseModel with _$AIResponseModel {
       requestHeaders: response.request?.headers,
       body: body,
       formattedBody: response.statusCode == 200
-          ? provider.models.$2.outputFormatter(jsonDecode(body))
+          ? provider.modelController.outputFormatter(jsonDecode(body))
           : formatBody(body, mediaType),
       bodyBytes: response.bodyBytes,
       time: time,

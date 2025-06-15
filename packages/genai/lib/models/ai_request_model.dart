@@ -28,7 +28,7 @@ class AIRequestModel with _$AIRequestModel {
   }
 
   LLMRequestDetails createRequest() {
-    final (_, ModelController controller) = model.provider.models;
+    final controller = model.provider.modelController;
     return controller.createRequest(model, payload);
   }
 }

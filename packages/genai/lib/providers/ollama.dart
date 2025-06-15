@@ -1,13 +1,14 @@
-import '../../llm_config.dart';
-import '../../llm_input_payload.dart';
-import '../../llm_request.dart';
-import '../../providers/common.dart';
+import '../llm_config.dart';
+import '../llm_input_payload.dart';
+import '../llm_request.dart';
+import 'common.dart';
 
-class AzureOpenAIModelController extends ModelController {
-  static final instance = AzureOpenAIModelController();
+class OllamaModelController extends ModelController {
+  static final instance = OllamaModelController();
+
   @override
   LLMInputPayload get inputPayload => LLMInputPayload(
-    endpoint: '', //TO BE FILLED BY USER
+    endpoint: 'http://localhost:11434/v1/chat/completions',
     credential: '',
     systemPrompt: '',
     userPrompt: '',
@@ -24,22 +25,16 @@ class AzureOpenAIModelController extends ModelController {
     LLMInputPayload inputPayload, {
     bool stream = false,
   }) {
-    if (inputPayload.endpoint.isEmpty) {
-      throw Exception('MODEL ENDPOINT IS EMPTY');
-    }
     return LLMRequestDetails(
       endpoint: inputPayload.endpoint,
-      headers: {'api-key': inputPayload.credential},
+      headers: {},
       method: 'POST',
       body: {
+        "model": model.identifier,
         if (stream) ...{'stream': true},
         "messages": [
           {"role": "system", "content": inputPayload.systemPrompt},
-          if (inputPayload.userPrompt.isNotEmpty) ...{
-            {"role": "user", "content": inputPayload.userPrompt},
-          } else ...{
-            {"role": "user", "content": "Generate"},
-          },
+          {"role": "user", "content": inputPayload.userPrompt},
         ],
         "temperature":
             inputPayload
@@ -67,11 +62,11 @@ class AzureOpenAIModelController extends ModelController {
 
   @override
   String? outputFormatter(Map x) {
-    return x["choices"]?[0]["message"]?["content"]?.trim();
+    return x['choices']?[0]['message']?['content'];
   }
 
   @override
   String? streamOutputFormatter(Map x) {
-    return x["choices"]?[0]["delta"]?["content"];
+    return x['choices']?[0]['delta']?['content'];
   }
 }

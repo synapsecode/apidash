@@ -55,7 +55,7 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
           endpoint: oC.endpoint,
           credential: '',
           configMap: oC.configMap,
-          selectedLLM: OllamaModel.llama3,
+          selectedLLM: LLMProvider.ollama.getLLMByIdentifier('llama3'),
           provider: LLMProvider.ollama,
         );
     selectedLLMProvider = llmSaveObject.provider;
@@ -86,7 +86,8 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
                             ),
                       onTap: () {
                         selectedLLMProvider = x;
-                        final (models, mC) = x.models;
+                        final models = x.models;
+                        final mC = x.modelController;
                         final p = mC.inputPayload;
                         llmSaveObject = LLMSaveObject(
                           endpoint: p.endpoint,
@@ -150,11 +151,12 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          ...selectedLLMProvider.models.$1.map(
+                          ...selectedLLMProvider.models.map(
                             (x) => ListTile(
                               title: Text(x.modelName),
                               subtitle: Text(x.identifier),
-                              trailing: llmSaveObject.selectedLLM != x
+                              trailing: llmSaveObject.selectedLLM.identifier !=
+                                      x.identifier
                                   ? null
                                   : CircleAvatar(
                                       radius: 5,
