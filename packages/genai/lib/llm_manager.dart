@@ -15,6 +15,21 @@ class LLMManager {
       'https://raw.githubusercontent.com/synapsecode/apidash/llm_model_rearch/packages/genai/models.json';
   static const String baseOllamaURL = 'http://localhost:11434';
 
+  static addLLM(String providerID, String modelID, String modelName) async {
+    avaiableModels[providerID] = [
+      ...avaiableModels[providerID],
+      [modelID, modelName],
+    ];
+    await saveAvailableLLMs(avaiableModels);
+  }
+
+  static removeLLM(String providerID, String modelID, String modelName) async {
+    List z = avaiableModels[providerID] as List;
+    z = z.where((x) => x[0] != modelID && x[1] != modelName).toList();
+    avaiableModels[providerID] = z;
+    await saveAvailableLLMs(avaiableModels);
+  }
+
   static fetchAvailableLLMs([String? remoteURL, String? ollamaURL]) async {
     //get LLMs from remove
     final (resp, _, __) = await sendHttpRequest(

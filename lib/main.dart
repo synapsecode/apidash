@@ -10,9 +10,10 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await LLMManager.loadAvailableLLMs();
   var settingsModel = await getSettingsFromSharedPrefs();
   var onboardingStatus = await getOnboardingStatusFromSharedPrefs();
-  await LLMManager.loadAvailableLLMs();
+
   final initStatus = await initApp(
     kIsDesktop,
     settingsModel: settingsModel,

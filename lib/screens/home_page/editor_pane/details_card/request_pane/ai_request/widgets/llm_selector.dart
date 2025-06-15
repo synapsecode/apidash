@@ -157,7 +157,13 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
                     value: llmSaveObject.endpoint,
                   ),
                   kVSpacer20,
-                  Text('Models'),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Models'),
+                      IconButton(onPressed: addNewModel, icon: Icon(Icons.add))
+                    ],
+                  ),
                   kVSpacer8,
                   Container(
                     height: 300,
@@ -172,13 +178,23 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
                             (x) => ListTile(
                               title: Text(x.modelName),
                               subtitle: Text(x.identifier),
-                              trailing: llmSaveObject.selectedLLM.identifier !=
-                                      x.identifier
-                                  ? null
-                                  : CircleAvatar(
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (llmSaveObject.selectedLLM.identifier ==
+                                      x.identifier)
+                                    CircleAvatar(
                                       radius: 5,
                                       backgroundColor: Colors.green,
                                     ),
+                                  IconButton(
+                                      onPressed: () => removeModel(x),
+                                      icon: Icon(
+                                        Icons.delete,
+                                        size: 20,
+                                      ))
+                                ],
+                              ),
                               onTap: () {
                                 llmSaveObject.selectedLLM = x;
                                 setState(() {});
@@ -207,6 +223,56 @@ class _DefaultLLMSelectorDialogState extends State<DefaultLLMSelectorDialog> {
         ],
       ),
     );
+  }
+
+  removeModel(LLMModel model) async {
+    await LLMManager.removeLLM(
+        selectedLLMProvider.name, model.identifier, model.modelName);
+    setState(() {});
+  }
+
+  addNewModel() async {
+    TextEditingController iC = TextEditingController();
+    TextEditingController nC = TextEditingController();
+    final z = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Add Custom Model'),
+            content: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ADOutlinedTextField(
+                    controller: iC,
+                    hintText: 'Model ID',
+                  ),
+                  kVSpacer10,
+                  ADOutlinedTextField(
+                    controller: nC,
+                    hintText: 'Model Display Name',
+                  ),
+                  kVSpacer10,
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop([
+                          iC.value.text,
+                          nC.value.text,
+                        ]);
+                      },
+                      child: Text('Add Model'),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+    if (z == null) return;
+    await LLMManager.addLLM(selectedLLMProvider.name, z[0], z[1]);
+    setState(() {});
   }
 }
 
