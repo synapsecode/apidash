@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:apidash_core/apidash_core.dart';
+import 'package:better_networking/better_networking.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../providers/providers.dart';
 part 'ai_response_model.freezed.dart';

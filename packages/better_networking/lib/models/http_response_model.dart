@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:collection/collection.dart' show mergeMaps;
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
-import '../extensions/extensions.dart';
+import '../../extensions/extensions.dart';
 import '../utils/utils.dart';
 import '../consts.dart';
 

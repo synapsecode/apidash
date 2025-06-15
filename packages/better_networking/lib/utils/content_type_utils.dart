@@ -1,6 +1,6 @@
 import 'package:http_parser/http_parser.dart';
 import '../consts.dart';
-import '../extensions/extensions.dart';
+import '../../extensions/extensions.dart';
 
 ContentType? getContentTypeFromHeadersMap(
   Map<String, String>? kvMap,

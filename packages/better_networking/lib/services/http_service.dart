@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:seed/seed.dart';
 import '../consts.dart';
-import '../extensions/extensions.dart';
+import '../../extensions/extensions.dart';
 import '../models/models.dart';
 import '../utils/utils.dart';
 import 'http_client_manager.dart';

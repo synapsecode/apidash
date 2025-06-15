@@ -12,6 +12,8 @@ dependencies:
     sdk: flutter
   apidash_core:
     path: packages/apidash_core
+  better_networking:
+    path: packages/better_networking
   apidash_design_system:
     path: packages/apidash_design_system
   genai:
