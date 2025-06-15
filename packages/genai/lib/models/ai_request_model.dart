@@ -1,7 +1,9 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../llm_saveobject.dart';
 import '../llm_input_payload.dart';
 import '../llm_request.dart';
 import '../providers/common.dart';
+import '../providers/gemini.dart';
 import '../providers/providers.dart';
 part 'ai_request_model.freezed.dart';
 part 'ai_request_model.g.dart';
@@ -30,5 +32,22 @@ class AIRequestModel with _$AIRequestModel {
   LLMRequestDetails createRequest() {
     final controller = model.provider.modelController;
     return controller.createRequest(model, payload);
+  }
+
+  factory AIRequestModel.fromDefaultSaveObject(LLMSaveObject? defaultLLMSO) {
+    final gmC = GeminiModelController.instance;
+    return AIRequestModel(
+      model:
+          defaultLLMSO?.selectedLLM ??
+          LLMProvider.gemini.getLLMByIdentifier('gemini-2.0-flash'),
+      provider: defaultLLMSO?.provider ?? LLMProvider.gemini,
+      payload: LLMInputPayload(
+        endpoint: defaultLLMSO?.endpoint ?? gmC.inputPayload.endpoint,
+        credential: defaultLLMSO?.credential ?? '',
+        systemPrompt: '',
+        userPrompt: '',
+        configMap: defaultLLMSO?.configMap ?? gmC.inputPayload.configMap,
+      ),
+    );
   }
 }
