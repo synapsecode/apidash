@@ -50,4 +50,12 @@ class AIRequestModel with _$AIRequestModel {
       ),
     );
   }
+
+  AIRequestModel clone() {
+    return AIRequestModel(
+      model: model,
+      payload: payload.clone(),
+      provider: provider,
+    );
+  }
 }

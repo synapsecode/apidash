@@ -81,6 +81,10 @@ class LLMModelConfiguration {
       'configValue': configValue.serialize(),
     };
   }
+
+  LLMModelConfiguration clone() {
+    return LLMModelConfiguration.fromJson(toJson());
+  }
 }
 
 enum LLMModelConfigurationType { boolean, slider, numeric, text }

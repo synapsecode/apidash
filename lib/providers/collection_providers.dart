@@ -170,7 +170,7 @@ class CollectionStateNotifier
       responseStatus: null,
       message: null,
       httpRequestModel: currentModel.httpRequestModel,
-      aiRequestModel: currentModel.aiRequestModel,
+      aiRequestModel: currentModel.aiRequestModel?.clone(),
       isWorking: false,
       sendingTime: null,
     );
@@ -201,7 +201,7 @@ class CollectionStateNotifier
       message: kResponseCodeReasons[currentModel.metaData.responseStatus],
       isWorking: false,
       sendingTime: null,
-      aiRequestModel: currentModel.aiRequestModel,
+      aiRequestModel: currentModel.aiRequestModel?.clone(),
       aiResponseModel: currentModel.aiResponseModel,
       httpRequestModel: currentModel.httpRequestModel,
       httpResponseModel: currentModel.httpResponseModel,

@@ -16,12 +16,16 @@ class LLMInputPayload {
   });
 
   LLMInputPayload clone() {
+    Map<String, LLMModelConfiguration> cmap = {};
+    for (final k in configMap.keys) {
+      cmap[k] = configMap[k]!.clone();
+    }
     return LLMInputPayload(
       endpoint: endpoint,
       credential: credential,
       systemPrompt: systemPrompt,
       userPrompt: userPrompt,
-      configMap: configMap,
+      configMap: cmap,
     );
   }
 
