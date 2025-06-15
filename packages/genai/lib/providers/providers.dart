@@ -1,48 +1,11 @@
 import 'dart:math';
+import '../available_llms.dart';
 import 'anthropic.dart';
 import 'azureopenai.dart';
 import 'common.dart';
 import 'gemini.dart';
 import 'ollama.dart';
 import 'openai.dart';
-
-Map<String, List<List<String>>> AVAILABLE_LLMS = {
-  'openai': [
-    ['gpt-4o', 'GPT-4o'],
-    ['gpt-4', 'GPT-4'],
-    ['gpt-4o-mini', 'GPT-4o Mini'],
-    ['gpt-4-turbo', 'GPT-4 Turbo'],
-    ['gpt-4.1', 'GPT-4.1'],
-    ['gpt-4.1-mini', 'GPT-4.1 Mini'],
-    ['gpt-4.1-nano', 'GPT-4.1 Nano'],
-    ['o1', 'o1'],
-    ['o3', 'o3'],
-    ['o3-mini', 'o3 Mini'],
-    ['gpt-3.5-turbo', 'GPT-3.5 Turbo'],
-  ],
-  'anthropic': [
-    ['claude-3-opus-latest', 'Claude 3 Opus'],
-    ['claude-3-sonnet-latest', 'Claude 3 Sonnet'],
-    ['claude-3-haiku-latest', 'Claude 3 Haiku'],
-    ['claude-3-5-haiku-latest', 'Claude 3.5 Haiku'],
-    ['claude-3-5-sonnet-latest', 'Claude 3.5 Sonnet'],
-  ],
-  'gemini': [
-    ['gemini-1.5-pro', 'Gemini 1.5 Pro'],
-    ['gemini-1.5-flash-8b', 'Gemini 1.5 Flash 8B'],
-    ['gemini-2.0-flash', 'Gemini 2.0 Flash'],
-    ['gemini-2.0-flash-lite', 'Gemini 2.0 Flash Lite'],
-    ['gemini-2.5-flash-preview_0520', 'Gemini 2.5 Flash Preview 0520'],
-  ],
-  'ollama': [
-    ['llama3', 'Llama 3'],
-    ['gemma3', 'Gemma 3'],
-    ['mistral', 'Mistral'],
-  ],
-  'azureopenai': [
-    ['custom', 'Custom'],
-  ],
-};
 
 enum LLMProvider {
   gemini('Gemini'),
