@@ -1,20 +1,31 @@
 import 'dart:convert';
+import 'package:apidash/providers/collection_providers.dart';
 import 'package:apidash_design_system/apidash_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SSEDisplay extends StatefulWidget {
+class SSEDisplay extends ConsumerStatefulWidget {
   final String sseOutput;
-  const SSEDisplay({super.key, required this.sseOutput});
+  const SSEDisplay({
+    super.key,
+    required this.sseOutput,
+  });
 
   @override
-  State<SSEDisplay> createState() => _SSEDisplayState();
+  ConsumerState<SSEDisplay> createState() => _SSEDisplayState();
 }
 
-class _SSEDisplayState extends State<SSEDisplay> {
+class _SSEDisplayState extends ConsumerState<SSEDisplay> {
   @override
   Widget build(BuildContext context) {
+    final requestModel = ref.read(selectedRequestModelProvider);
+    final aiRequestModel = requestModel?.aiRequestModel;
+    final isAIOutput = (aiRequestModel != null);
+
     final theme = Theme.of(context);
+
     List<dynamic> sse;
+
     try {
       sse = jsonDecode(widget.sseOutput);
     } catch (e) {
@@ -24,10 +35,23 @@ class _SSEDisplayState extends State<SSEDisplay> {
       );
     }
 
+    if (isAIOutput) {
+      String out = "";
+      for (String x in sse) {
+        x = x.substring(6);
+        out += aiRequestModel.model.provider.modelController
+                .streamOutputFormatter(jsonDecode(x)) ??
+            "<?>";
+      }
+      return SingleChildScrollView(
+        child: Text(out),
+      );
+    }
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: sse.reversed.where((e) => e != '').map<Widget>((chunk) {
+        children: (sse).reversed.where((e) => e != '').map<Widget>((chunk) {
           Map<String, dynamic>? parsedJson;
           try {
             parsedJson = jsonDecode(chunk);
